@@ -1,13 +1,10 @@
 "use server"
 
 import { isAlphabetic } from "@/utils/utility";
-import { exec } from "child_process";
 
-
-export const generatePassword = (passwordLength: number) => {
+export const generatePassword = async (passwordLength: number) => {
             
          if (isAlphabetic(passwordLength) ) {
-            console.log(passwordLength);
             
             return {
                 message: "Password length must be a number"
@@ -20,30 +17,20 @@ export const generatePassword = (passwordLength: number) => {
 
         try {
 
-            exec(`python main.py ${passwordLength}`, {cwd: "/src/password_generator/"}, (error, stdout, stderr) => {
-
-                if (error) {
-                    console.error(error);
-                    return {
-                        message: "Something went wrong"
-                    }
-                }
-                if (stderr) {
-                    console.log(`Stdrr: ${stderr}`);
-                    return {
-                        message: "Something went wrong"
-                    }
-                }
-                console.log(stdout);
-            }  )
+          const response = await fetch(`https://flask-api-git-main-fullstack-engineers-projects.vercel.app/password_generator?len=${passwordLength}`)
+          const receivedPassword = await response.json()
+          console.log(receivedPassword);
+          return {
+            message: "",
+            passwordData: receivedPassword.password
+          }
             
-
         } catch (error) {
             console.log(error);
             
-            
-        }
-            
-            
-
+            return {
+                message: "some error happened in the backend",
+                
+            }
+        }         
  }
